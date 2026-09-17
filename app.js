@@ -129,18 +129,17 @@ function renderClassOptions(){
   const listEl = document.getElementById('classOptionList');
   const noticeEl = document.getElementById('lockedNoticeBox');
 
-  noticeEl.innerHTML = lockState.locked
-    ? `<div class="locked-note">🔒 Admissions are currently open only for <b>${CLASS_LABELS[lockState.lockedClass] || ''}</b>.</div>`
-    : '';
+  // No red notice, and locked-out classes are hidden entirely (not shown greyed out).
+  noticeEl.innerHTML = '';
 
   listEl.innerHTML = '';
   Object.keys(CLASS_LABELS).forEach(cls => {
-    const isDisabled = lockState.locked && lockState.lockedClass !== cls;
+    const isHidden = lockState.locked && lockState.lockedClass !== cls;
+    if (isHidden) return;
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.disabled = isDisabled;
-    btn.innerHTML = `<span>${CLASS_LABELS[cls]}</span>` + (isDisabled ? '<span class="lock-tag">LOCKED</span>' : '<span>›</span>');
-    if (!isDisabled) btn.onclick = () => openBatchModal(cls);
+    btn.innerHTML = `<span>${CLASS_LABELS[cls]}</span><span>›</span>`;
+    btn.onclick = () => openBatchModal(cls);
     listEl.appendChild(btn);
   });
 }
