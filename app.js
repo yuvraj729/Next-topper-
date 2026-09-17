@@ -13,6 +13,9 @@ const ADMIN_PASSWORD = "@sk804936";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const lockRef = doc(db, "settings", "classLock");
+const pricingRef = doc(db, "settings", "pricing");
+
+let currentPrice = 149; // fallback until Firestore responds
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -56,12 +59,40 @@ onSnapshot(lockRef, (snap) => {
 }, (err) => console.error('Firestore lock listener error:', err));
 
 // ============================================================
+// LIVE PRICE (admin-controlled)
+// ============================================================
+onSnapshot(pricingRef, (snap) => {
+  currentPrice = (snap.exists() && Number(snap.data().amount) > 0) ? Number(snap.data().amount) : 149;
+  updatePriceDisplay();
+}, (err) => console.error('Firestore pricing listener error:', err));
+
+function updatePriceDisplay(){
+  const priceDisplay = document.getElementById('priceDisplay');
+  if (priceDisplay) priceDisplay.textContent = '₹' + currentPrice;
+
+  const payBtn = document.getElementById('payBtn');
+  if (payBtn) payBtn.textContent = 'Pay ₹' + currentPrice;
+
+  const pricePill = document.getElementById('currentPricePill');
+  if (pricePill) pricePill.textContent = '₹' + currentPrice;
+
+  const priceInput = document.getElementById('priceInput');
+  if (priceInput && document.activeElement !== priceInput) priceInput.placeholder = 'e.g. ' + currentPrice;
+}
+
+// ============================================================
 // MODAL HELPERS
 // ============================================================
 window.closeAllModals = function(){
   document.getElementById('classOverlay').classList.remove('active');
   document.getElementById('batchOverlay').classList.remove('active');
   document.getElementById('checkoutOverlay').classList.remove('active');
+  document.getElementById('adminOverlay').classList.remove('active');
+};
+
+window.openAdminModal = function(){
+  closeAllModals();
+  document.getElementById('adminOverlay').classList.add('active');
 };
 
 window.openClassModal = function(){
@@ -84,7 +115,7 @@ window.openCheckoutModal = function(batchName){
     `<b>Plan:</b> Next Toppers Premium<br>
      <b>Class:</b> ${CLASS_LABELS[selectedClass]}<br>
      <b>Batch:</b> ${selectedBatch}<br>
-     <b>Amount:</b> ₹149`;
+     <b>Amount:</b> ₹${currentPrice}`;
   document.getElementById('backToBatch').onclick = () => openBatchModal(selectedClass);
   document.getElementById('checkoutFormWrap').style.display = 'block';
   document.getElementById('checkoutStatusWrap').style.display = 'none';
@@ -155,7 +186,7 @@ window.startPayment = function(){
   pendingOrder = {
     orderId, name, phone, email,
     class: selectedClass, className: CLASS_LABELS[selectedClass],
-    batch: selectedBatch, amount: 149
+    batch: selectedBatch, amount: currentPrice
   };
 
   savePendingOrder(pendingOrder);
@@ -229,9 +260,21 @@ window.tryAdminLogin = function(){
   if (val === ADMIN_PASSWORD){
     document.getElementById('adminLoginView').style.display = 'none';
     document.getElementById('adminControlView').style.display = 'block';
+    const priceInput = document.getElementById('priceInput');
+    if (priceInput) priceInput.value = currentPrice;
   } else {
     document.getElementById('adminLoginMsg').textContent = 'Incorrect password.';
   }
+};
+
+window.updatePrice = async function(){
+  const val = Number(document.getElementById('priceInput').value);
+  if (!val || val <= 0){
+    document.getElementById('priceMsg').textContent = 'Enter a valid price greater than 0.';
+    return;
+  }
+  await setDoc(pricingRef, { amount: val });
+  document.getElementById('priceMsg').textContent = `Price updated to ₹${val}. Site updates instantly for everyone.`;
 };
 
 window.lockClass = async function(){
