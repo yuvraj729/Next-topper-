@@ -26,7 +26,7 @@
 <section class="pricing wrap">
   <div class="price-card">
     <h2>Premium Plan</h2>
-    <div class="price-amount">₹149 <span>only</span></div>
+    <div class="price-amount"><span id="priceDisplay">₹149</span> <span>only</span></div>
     <div class="price-note">One-time payment · Instant access</div>
     <ul class="features">
       <li>Access to your class's premium batch</li>
@@ -39,6 +39,7 @@
   </div>
 </section>
 
+<!-- ===================== STEP 1: CLASS SELECTION ===================== -->
 <div class="overlay" id="classOverlay">
   <div class="modal">
     <button class="close-btn" onclick="closeAllModals()">✕</button>
@@ -49,6 +50,7 @@
   </div>
 </div>
 
+<!-- ===================== STEP 2: BATCH SELECTION ===================== -->
 <div class="overlay" id="batchOverlay">
   <div class="modal">
     <button class="close-btn" onclick="closeAllModals()">✕</button>
@@ -59,6 +61,7 @@
   </div>
 </div>
 
+<!-- ===================== STEP 3: CHECKOUT ===================== -->
 <div class="overlay" id="checkoutOverlay">
   <div class="modal">
     <button class="close-btn" onclick="closeAllModals()">✕</button>
@@ -84,10 +87,18 @@
   </div>
 </div>
 
-<section class="admin-section wrap" id="adminSection">
-  <hr class="admin-divider">
-  <div class="admin-card">
-    <h2>Admin Panel</h2>
+<footer>
+  © <span id="year"></span> Next Toppers. All rights reserved.
+</footer>
+
+<!-- Small admin lock icon, bottom-right corner -->
+<button class="admin-lock-btn" onclick="openAdminModal()" title="Admin">🔒</button>
+
+<!-- ===================== ADMIN PANEL (modal) ===================== -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
+    <h3>Admin Panel</h3>
     <p class="sub">Control which class is open for admissions</p>
 
     <div id="adminLoginView">
@@ -117,13 +128,21 @@
       <hr class="admin-divider">
       <button class="secondary-btn" onclick="unlockAll()">🔓 Unlock — allow all classes</button>
       <p class="msg" id="adminControlMsg"></p>
+
+      <hr class="admin-divider">
+      <div class="row">
+        <span>Current price:</span>
+        <span class="status-pill open" id="currentPricePill">₹149</span>
+      </div>
+      <div class="field">
+        <label>Set Premium Price (₹)</label>
+        <input type="number" id="priceInput" min="1" placeholder="e.g. 149">
+      </div>
+      <button class="buy-btn" onclick="updatePrice()">💰 Update Price</button>
+      <p class="msg" id="priceMsg"></p>
     </div>
   </div>
-</section>
-
-<footer>
-  © <span id="year"></span> Next Toppers. All rights reserved.
-</footer>
+</div>
 
 <script type="module" src="app.js"></script>
 </body>
