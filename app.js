@@ -162,15 +162,20 @@ function renderBatchOptions(cls){
 // ============================================================
 // PAYMENT (ZapUPI)
 // ============================================================
-if (window.ZapUPI) {
-  ZapUPI.setPaymentCallbacks({
-    onSuccess: (orderId) => handlePaymentResult('success', orderId),
-    onFailed:  (orderId) => handlePaymentResult('failed', orderId),
-    onTimeout: (orderId) => handlePaymentResult('timeout', orderId)
-  });
+function registerZapUPICallbacks(){
+  if (window.ZapUPI && !window.__zapCallbacksRegistered){
+    ZapUPI.setPaymentCallbacks({
+      onSuccess: (orderId) => handlePaymentResult('success', orderId),
+      onFailed:  (orderId) => handlePaymentResult('failed', orderId),
+      onTimeout: (orderId) => handlePaymentResult('timeout', orderId)
+    });
+    window.__zapCallbacksRegistered = true;
+  }
 }
+registerZapUPICallbacks();
 
 let pendingOrder = null;
+let paymentWatchdog = null;
 
 window.startPayment = function(){
   const name = document.getElementById('custName').value.trim();
@@ -182,6 +187,12 @@ window.startPayment = function(){
     return;
   }
 
+  if (!window.ZapUPI){
+    showCheckoutStatus('error', 'Payment SDK failed to load. Please check your internet connection and try again.');
+    return;
+  }
+  registerZapUPICallbacks();
+
   const orderId = 'NT' + Date.now();
   pendingOrder = {
     orderId, name, phone, email,
@@ -192,19 +203,35 @@ window.startPayment = function(){
   savePendingOrder(pendingOrder);
   showCheckoutStatus('loading', 'Opening secure payment window…');
 
-  if (!window.ZapUPI){
-    showCheckoutStatus('error', 'Payment SDK failed to load. Please check your internet connection and try again.');
-    return;
-  }
+  // Safety net: if ZapUPI never responds within 20s, stop the infinite spinner.
+  clearTimeout(paymentWatchdog);
+  paymentWatchdog = setTimeout(() => {
+    showCheckoutStatus('error', 'Payment window took too long to open. Please check your connection and try again.');
+  }, 20000);
 
-  ZapUPI.createOrder({
-    zap_key: "zapf0bc4ab8864806b4e1b1eaf8c5bfa04a",
-    order_id: orderId,
-    amount: String(pendingOrder.amount)
-  });
+  ZapUPI.createOrder(
+    {
+      zap_key: "zapf0bc4ab8864806b4e1b1eaf8c5bfa04a",
+      order_id: orderId,
+      amount: String(pendingOrder.amount),
+      customer_mobile: phone,
+      remark: `${pendingOrder.className} | ${pendingOrder.batch} | ${name}`
+    },
+    {
+      onResponse: function(paymentUrl, respOrderId, data){
+        clearTimeout(paymentWatchdog);
+        ZapUPI.loadPayment(paymentUrl); // opens the fullscreen UPI payment page
+      },
+      onError: function(err){
+        clearTimeout(paymentWatchdog);
+        showCheckoutStatus('error', 'Could not start payment: ' + err);
+      }
+    }
+  );
 };
 
 function handlePaymentResult(result, orderId){
+  clearTimeout(paymentWatchdog);
   if (result === 'success'){
     markOrderStatus(orderId, 'paid');
     showCheckoutStatus('success', `Payment successful! Your order <b>${orderId}</b> for <b>${pendingOrder ? pendingOrder.className + ' — ' + pendingOrder.batch : ''}</b> is confirmed. You now have Premium access.`);
