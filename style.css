@@ -112,17 +112,14 @@ footer{text-align:center;padding:30px 20px 50px;color:var(--text-dim);font-size:
 .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--mint);margin:0 auto 14px;animation:spin 0.9s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ADMIN — small lock icon fixed in the bottom corner */
-.admin-lock-btn{
-  position:fixed;bottom:18px;right:18px;z-index:80;
-  width:42px;height:42px;border-radius:50%;
-  background:var(--card);border:1px solid var(--border);
-  color:var(--text-dim);font-size:17px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 18px rgba(0,0,0,0.4);
-  opacity:0.55;transition:opacity .15s, transform .15s;
+/* ADMIN — plain text link in the footer */
+.admin-footer-link{
+  display:inline-block;margin-top:8px;
+  color:var(--text-dim);font-size:12px;
+  cursor:pointer;text-decoration:underline;
+  opacity:0.6;
 }
-.admin-lock-btn:hover{opacity:1;transform:scale(1.06);}
+.admin-footer-link:hover{opacity:1;}
 
 /* Shared bits used inside the admin modal */
 .admin-divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
