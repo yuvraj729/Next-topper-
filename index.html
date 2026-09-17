@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Toppers — Premium Access</title>
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="style.css">
+<script src="https://zapupi.com/single-html-web-kit.js"></script>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <img class="logo" src="assets/logo.png" alt="Next Toppers">
+    <button class="cta-small" onclick="openClassModal()">Buy Now</button>
+  </nav>
+</header>
+
+<section class="hero wrap">
+  <img class="hero-img" src="assets/hero.jpg" alt="Next Toppers team">
+  <h1>Unlock <span>Next Toppers Premium</span></h1>
+  <p>Hum "Desh Ka Bhavishya" Banate Hai — get full access to premium batches, study material and mentorship for just ₹149.</p>
+</section>
+
+<section class="pricing wrap">
+  <div class="price-card">
+    <h2>Premium Plan</h2>
+    <div class="price-amount">₹149 <span>only</span></div>
+    <div class="price-note">One-time payment · Instant access</div>
+    <ul class="features">
+      <li>Access to your class's premium batch</li>
+      <li>Complete study material &amp; notes</li>
+      <li>Live doubt-solving sessions</li>
+      <li>Test series &amp; performance tracking</li>
+      <li>Priority mentor support</li>
+    </ul>
+    <button class="buy-btn" onclick="openClassModal()">Buy Now</button>
+  </div>
+</section>
+
+<div class="overlay" id="classOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
+    <h3>Select Your Class</h3>
+    <p class="sub">Choose your class to see available batches.</p>
+    <div id="lockedNoticeBox"></div>
+    <div class="option-list" id="classOptionList"></div>
+  </div>
+</div>
+
+<div class="overlay" id="batchOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
+    <a class="back-link" onclick="openClassModal()">← Change class</a>
+    <h3 id="batchTitle">Select Your Batch</h3>
+    <p class="sub" id="batchSub"></p>
+    <div class="option-list" id="batchOptionList"></div>
+  </div>
+</div>
+
+<div class="overlay" id="checkoutOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeAllModals()">✕</button>
+    <a class="back-link" id="backToBatch">← Change batch</a>
+    <h3>Complete Your Purchase</h3>
+    <div class="summary" id="orderSummary"></div>
+    <div id="checkoutFormWrap">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="custName" placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label>Mobile Number</label>
+        <input type="tel" id="custPhone" placeholder="10-digit mobile number" maxlength="10">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="custEmail" placeholder="you@example.com">
+      </div>
+      <button class="buy-btn" id="payBtn" onclick="startPayment()">Pay ₹149</button>
+    </div>
+    <div id="checkoutStatusWrap" style="display:none;"></div>
+  </div>
+</div>
+
+<section class="admin-section wrap" id="adminSection">
+  <hr class="admin-divider">
+  <div class="admin-card">
+    <h2>Admin Panel</h2>
+    <p class="sub">Control which class is open for admissions</p>
+
+    <div id="adminLoginView">
+      <div class="field">
+        <label>Admin Password</label>
+        <input type="password" id="adminPass" placeholder="Enter admin password">
+      </div>
+      <button class="buy-btn" onclick="tryAdminLogin()">Login</button>
+      <p class="msg" id="adminLoginMsg"></p>
+    </div>
+
+    <div id="adminControlView" style="display:none;">
+      <div class="row">
+        <span>Current status:</span>
+        <span class="status-pill" id="statusPill">—</span>
+      </div>
+      <div class="field">
+        <label>Lock admissions to a single class</label>
+        <select id="classSelect">
+          <option value="9">Class 9th</option>
+          <option value="10">Class 10th</option>
+          <option value="11">Class 11th</option>
+          <option value="12">Class 12th</option>
+        </select>
+      </div>
+      <button class="buy-btn" onclick="lockClass()">🔒 Lock to selected class</button>
+      <hr class="admin-divider">
+      <button class="secondary-btn" onclick="unlockAll()">🔓 Unlock — allow all classes</button>
+      <p class="msg" id="adminControlMsg"></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> Next Toppers. All rights reserved.
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
